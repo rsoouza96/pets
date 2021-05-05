@@ -9,10 +9,15 @@ from .models import Animal, Group, Characteristic
 
 
 class AnimalView(APIView):
-    def get(self, request):
-        queryset = Animal.objects.all()
-        serializer = AnimalSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, animal_id=''):
+        if animal_id:
+            animal = get_object_or_404(Animal, id=animal_id)
+            serializer = AnimalSerializer(animal)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else: 
+            queryset = Animal.objects.all()
+            serializer = AnimalSerializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = AnimalSerializer(data=request.data)
@@ -33,8 +38,9 @@ class AnimalView(APIView):
 
         serializer = AnimalSerializer(animal)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, animal_id):
-        Animal.objects.get(id=animal_id).delete()
+        animal = get_object_or_404(Animal, id=animal_id)
+        animal.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
